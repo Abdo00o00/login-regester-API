@@ -41,7 +41,6 @@ app.post('/signup', (req, res) => {
 
   const users = readUsers();
 
-  // Check if email already exists
   const existingUser = users.find((user) => user.email === email);
   if (existingUser) {
     return res.status(409).json({ message: 'Email already exists.' });
@@ -58,8 +57,50 @@ app.post('/signup', (req, res) => {
   users.push(newUser);
   writeUsers(users);
 
-  res.status(201).json({ message: 'User registered successfully.', user: newUser });
+  // ✅ إنشاء التوكن بعد التسجيل
+  const token = generateToken(newUser);
+
+  // ✅ رجّع التوكن مع البيانات
+  res.status(201).json({ 
+    message: 'User registered successfully.', 
+    token,
+    user: {
+      id: newUser.id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email
+    }
+  });
 });
+
+// app.post('/signup', (req, res) => {
+//   const { firstName, lastName, email, age, password } = req.body;
+
+//   if (!firstName || !lastName || !email || !age || !password) {
+//     return res.status(400).json({ message: 'All fields are required.' });
+//   }
+
+//   const users = readUsers();
+
+//   // Check if email already exists
+//   const existingUser = users.find((user) => user.email === email);
+//   if (existingUser) {
+//     return res.status(409).json({ message: 'Email already exists.' });
+//   }
+
+//   const newUser = { 
+//     id: Date.now(), 
+//     firstName, 
+//     lastName, 
+//     email, 
+//     age, 
+//     password 
+//   };
+//   users.push(newUser);
+//   writeUsers(users);
+
+//   res.status(201).json({ message: 'User registered successfully.', user: newUser });
+// });
 
 // POST /login
 app.post('/login', (req, res) => {
